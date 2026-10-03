@@ -1,6 +1,13 @@
 # Number Keys
 
-Flash cards for the musical number system: name any scale degree (1–7) in any major key.
+Flash cards for the musical number system: name any scale degree (1–7), and the notes of 16 chord types, in any major key.
+
+Live site: <https://number-keys.netlify.app>
+
+## Documentation
+
+- [User's guide](docs/USER_GUIDE.md): how to use every part of the app.
+- [Project documentation](docs/PROJECT.md): architecture, data model, testing, deployment, and how to extend it.
 
 ## Run locally
 ```
