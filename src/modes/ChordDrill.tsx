@@ -1,9 +1,10 @@
 import { useMemo, useRef, useState } from 'react'
-import { CHORD_TYPES, ChordType, chordCardId, chordIndex } from '../data/chords'
-import { ANSWERS, Key } from '../data/deck'
+import { CHORD_TYPES, ChordType, chordCardId } from '../data/chords'
+import { Key } from '../data/deck'
 import { playChord } from '../lib/audio'
 import { shuffle } from '../lib/session'
-import { generateScale, pitchClass } from '../lib/theory'
+import { chordNotes } from '../lib/chordNotes'
+import { displayKey, pitchClass } from '../lib/theory'
 import { Card } from '../components/Card'
 import { Piano, KeyState } from '../components/Piano'
 import { useDoubleTap } from '../lib/useDoubleTap'
@@ -52,9 +53,7 @@ function ChordRound({ keys, types, onExit, sharpGb, muted, record }: {
   const q = useMemo(() => {
     const key = shuffle(keys)[0]
     const type = shuffle(types)[0]
-    const scale = key === 'Gb' && sharpGb ? generateScale('F#') : [...ANSWERS[key]]
-    const notes = type.formula.map((d) => scale[chordIndex(d)])
-    return { key, keyName: key === 'Gb' && sharpGb ? 'F#' : key, type, notes }
+    return { key, keyName: displayKey(key, sharpGb), type, notes: chordNotes(key, type, sharpGb) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [n])
   const shownAt = useRef(performance.now()) // reset for every question

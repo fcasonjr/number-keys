@@ -1,12 +1,13 @@
-import { useMemo, useRef, useState } from 'react'
-import { CHORD_TYPES, ChordType, chordCardId, chordIndex } from '../data/chords'
-import { ANSWERS, KEYS, Key } from '../data/deck'
+import { useRef, useState } from 'react'
+import { CHORD_TYPES, ChordType, chordCardId } from '../data/chords'
+import { KEYS, Key } from '../data/deck'
 import { playChord } from '../lib/audio'
 import { smartOrder } from '../lib/leitner'
 import { SMART_SESSION_SIZE, shuffle } from '../lib/session'
-import { displayKey, generateScale, pitchClass } from '../lib/theory'
+import { chordNotes } from '../lib/chordNotes'
+import { displayKey, pitchClass } from '../lib/theory'
 import { Card } from '../components/Card'
-import { KeyState, Piano } from '../components/Piano'
+import { ChordMini } from '../components/ChordMini'
 import { useDoubleTap } from '../lib/useDoubleTap'
 import { useApp } from '../state/store'
 
@@ -25,8 +26,7 @@ function buildCards(keys: Key[], types: ChordType[], sharpGb: boolean): ChordCar
   for (const type of types)
     for (const key of KEYS.filter((k) => keys.includes(k))) {
       const keyName = displayKey(key, sharpGb)
-      const scale = keyName === 'F#' ? generateScale('F#') : [...ANSWERS[key]]
-      cards.push({ id: chordCardId(type.id, key), key, keyName, type, notes: type.formula.map((d) => scale[chordIndex(d)]) })
+      cards.push({ id: chordCardId(type.id, key), key, keyName, type, notes: chordNotes(key, type, sharpGb) })
     }
   return cards
 }
@@ -85,16 +85,6 @@ function FlipRound({ queue, onExit, muted }: { queue: ChordCard[]; onExit: () =>
   const right = results.filter(Boolean).length
 
   const card = queue[i]
-  const view = useMemo(() => {
-    if (!card) return null
-    const pcs = new Set(card.notes.map(pitchClass))
-    const states: Record<number, KeyState> = {}
-    for (let k = 0; k < 24; k++) if (pcs.has(k % 12)) states[k] = 'ok'
-    const marks: Record<number, string[]> = {}
-    card.notes.forEach((n, j) => { marks[pitchClass(n)] = [n, String(card.type.formula[j])] })
-    return { states, marks }
-  }, [card])
-
   const flipMs = useRef(0)
   const flip = () => {
     if (flipped) return
@@ -112,7 +102,7 @@ function FlipRound({ queue, onExit, muted }: { queue: ChordCard[]; onExit: () =>
   }
   const again = () => { shownAt.current = performance.now(); setI(0); setFlipped(false); setResults([]); setMissed([]) }
 
-  if (!card || !view)
+  if (!card)
     return (
       <div className="q center">
         <h2>Round complete</h2>
@@ -157,7 +147,7 @@ function FlipRound({ queue, onExit, muted }: { queue: ChordCard[]; onExit: () =>
         </Card>
         {flipped && (
           <>
-            <Piano count={24} states={view.states} marks={view.marks} height={120} className="mini" />
+            <ChordMini notes={card.notes} type={card.type} />
             <div className="row">
               <button className="btn bad" onClick={() => mark(false)}>Missed it</button>
               <button className="btn good" onClick={() => mark(true)}>Got it</button>
