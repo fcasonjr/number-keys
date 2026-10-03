@@ -1,13 +1,13 @@
 import { useMemo, useRef, useState } from 'react'
-import { CHORD_TYPES, ChordType, chordCardId } from '../data/chords'
+import { CHORD_TYPES, ChordType, DEFAULT_CHORD_TYPES, chordCardId } from '../data/chords'
 import { Key } from '../data/deck'
 import { playChord } from '../lib/audio'
 import { shuffle } from '../lib/session'
 import { chordNotes } from '../lib/chordNotes'
 import { displayKey, pitchClass } from '../lib/theory'
 import { Card } from '../components/Card'
+import { ChordTypePicker } from '../components/ChordTypePicker'
 import { Piano, KeyState } from '../components/Piano'
-import { useDoubleTap } from '../lib/useDoubleTap'
 import { useApp } from '../state/store'
 
 interface Props {
@@ -17,8 +17,7 @@ interface Props {
 
 export function ChordDrill({ keys, onExit }: Props) {
   const { settings, recordChord } = useApp()
-  const [types, setTypes] = useState<string[]>(CHORD_TYPES.map((t) => t.id))
-  const isDoubleTap = useDoubleTap()
+  const [types, setTypes] = useState<string[]>([...DEFAULT_CHORD_TYPES])
   const [started, setStarted] = useState(false)
 
   if (!started)
@@ -26,15 +25,7 @@ export function ChordDrill({ keys, onExit }: Props) {
       <div className="q">
         <h2>Chord formulas</h2>
         <p className="muted">Tap every note of the chord on the piano, then check.</p>
-        <div className="chips">
-          {CHORD_TYPES.map((t) => (
-            <button key={t.id} className={`chip ${types.includes(t.id) ? 'on' : ''}`}
-              onClick={() => setTypes((x) => (isDoubleTap(t.id) ? [t.id] : x.includes(t.id) ? x.filter((y) => y !== t.id) : [...x, t.id]))}>
-              {t.name} ({t.formula.join('-')})
-            </button>
-          ))}
-        </div>
-        <p className="muted hint">Tip: double-tap a chord type to select only that one.</p>
+        <ChordTypePicker selected={types} onChange={setTypes} />
         <div className="row">
           <button className="btn" onClick={onExit}>Back</button>
           <button className="btn primary" disabled={!types.length} onClick={() => setStarted(true)}>Start</button>

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { CHORD_TYPES, ChordType, chordCardId } from '../data/chords'
+import { CHORD_TYPES, ChordType, DEFAULT_CHORD_TYPES, chordCardId } from '../data/chords'
 import { KEYS, Key } from '../data/deck'
 import { playChord } from '../lib/audio'
 import { smartOrder } from '../lib/leitner'
@@ -8,7 +8,7 @@ import { chordNotes } from '../lib/chordNotes'
 import { displayKey, pitchClass } from '../lib/theory'
 import { Card } from '../components/Card'
 import { ChordMini } from '../components/ChordMini'
-import { useDoubleTap } from '../lib/useDoubleTap'
+import { ChordTypePicker } from '../components/ChordTypePicker'
 import { useApp } from '../state/store'
 
 interface ChordCard {
@@ -18,8 +18,6 @@ interface ChordCard {
   type: ChordType
   notes: string[]
 }
-
-const typeTitle = (t: ChordType) => (t.id === 'maj' ? 'Major triad' : t.name)
 
 function buildCards(keys: Key[], types: ChordType[], sharpGb: boolean): ChordCard[] {
   const cards: ChordCard[] = []
@@ -34,8 +32,7 @@ function buildCards(keys: Key[], types: ChordType[], sharpGb: boolean): ChordCar
 /** Flash cards for chord tones: "Eb major triad" on the front, "Eb – G – Bb" on the back. */
 export function ChordFlip({ keys, onExit }: { keys: Key[]; onExit: () => void }) {
   const { settings, store } = useApp()
-  const [types, setTypes] = useState<string[]>(CHORD_TYPES.map((t) => t.id))
-  const isDoubleTap = useDoubleTap()
+  const [types, setTypes] = useState<string[]>([...DEFAULT_CHORD_TYPES])
   const [order, setOrder] = useState<'original' | 'shuffled' | 'smart'>('original')
   const [queue, setQueue] = useState<ChordCard[] | null>(null)
 
@@ -51,20 +48,12 @@ export function ChordFlip({ keys, onExit }: { keys: Key[]; onExit: () => void })
       <div className="q">
         <h2>Chord flip cards</h2>
         <p className="muted">See the chord name, say the notes, then flip. Uses the keys you picked on the Practice screen.</p>
-        <div className="chips">
-          {CHORD_TYPES.map((t) => (
-            <button key={t.id} className={`chip ${types.includes(t.id) ? 'on' : ''}`}
-              onClick={() => setTypes((x) => (isDoubleTap(t.id) ? [t.id] : x.includes(t.id) ? x.filter((y) => y !== t.id) : [...x, t.id]))}>
-              {typeTitle(t)} ({t.formula.join('-')})
-            </button>
-          ))}
-        </div>
+        <ChordTypePicker selected={types} onChange={setTypes} />
         <div className="chips">
           {([['original', 'Original order'], ['shuffled', 'Shuffled'], ['smart', 'Smart review']] as const).map(([o, label]) => (
             <button key={o} className={`chip ${order === o ? 'on' : ''}`} onClick={() => setOrder(o)}>{label}</button>
           ))}
         </div>
-        <p className="muted hint">Tip: double-tap a chord type to select only that one.</p>
         <p className="muted">{order === 'smart' ? Math.min(SMART_SESSION_SIZE, types.length * keys.length) : types.length * keys.length} cards selected</p>
         <div className="row">
           <button className="btn" onClick={onExit}>Back</button>
@@ -111,7 +100,7 @@ function FlipRound({ queue, onExit, muted }: { queue: ChordCard[]; onExit: () =>
           <div className="missed">
             <p className="muted">Missed:</p>
             <div className="chips">{missed.map((c, j) => (
-              <span key={j} className="chip">{c.keyName} {typeTitle(c.type)} = {c.notes.join(' ')}</span>
+              <span key={j} className="chip">{c.keyName} {c.type.name} = {c.notes.join(' ')}</span>
             ))}</div>
           </div>
         )}
@@ -134,13 +123,13 @@ function FlipRound({ queue, onExit, muted }: { queue: ChordCard[]; onExit: () =>
         <Card onClick={flip} flipped={flipped}>
           {!flipped ? (
             <>
-              <div className="card-small">{typeTitle(card.type)}</div>
+              <div className="card-small">{card.type.name}</div>
               <div className="card-big">{card.keyName}</div>
               <div className="hint">tap to flip</div>
             </>
           ) : (
             <>
-              <div className="card-small">{card.keyName} {typeTitle(card.type)} ({card.type.formula.join('-')})</div>
+              <div className="card-small">{card.keyName} {card.type.name} ({card.type.formula.join('-')})</div>
               <div className="card-big chord-notes">{card.notes.join(' – ')}</div>
             </>
           )}

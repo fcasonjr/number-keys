@@ -102,3 +102,7 @@ span.chip { min-height: 0; padding: 4px 10px; }
 .setting input[type='checkbox'] { width: 24px; height: 24px; } .setting select { font: inherit; padding: 6px; }
 .chord-notes { font-size: clamp(2rem, 11vw, 3.2rem); }
 .heat.short .cell { aspect-ratio: auto; height: 38px; }
+.family { margin: 10px 0 6px; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted, #6b7280); }
+.heat.tight { gap: 3px; }
+.heat.tight .cell { aspect-ratio: auto; height: 28px; border-radius: 6px; font-size: .7rem; }
+.heat.tight .heat-h { font-size: .72rem; padding-right: 2px; }

@@ -2,13 +2,12 @@ import { useState } from 'react'
 import { CHORD_TYPES } from '../data/chords'
 import { DECK, KEYS } from '../data/deck'
 import { ChordMini } from '../components/ChordMini'
+import { ChordTypePicker } from '../components/ChordTypePicker'
 import { MiniScale } from '../components/MiniScale'
 import { viewCard } from '../lib/cards'
 import { chordNotes } from '../lib/chordNotes'
 import { displayKey } from '../lib/theory'
 import { useApp } from '../state/store'
-
-const chordTitle = (id: string, name: string) => (id === 'maj' ? 'Major triad' : name)
 
 /** Reference charts. Only reachable from the home tab bar, never during a quiz. */
 export function Study() {
@@ -25,15 +24,7 @@ export function Study() {
         <button className={`chip ${view === 'scales' ? 'on' : ''}`} onClick={() => setView('scales')}>Scales</button>
         <button className={`chip ${view === 'chords' ? 'on' : ''}`} onClick={() => setView('chords')}>Chords</button>
       </div>
-      {view === 'chords' && (
-        <div className="chips">
-          {CHORD_TYPES.map((t) => (
-            <button key={t.id} className={`chip ${typeId === t.id ? 'on' : ''}`} onClick={() => setTypeId(t.id)}>
-              {chordTitle(t.id, t.name)} ({t.formula.join('-')})
-            </button>
-          ))}
-        </div>
-      )}
+      {view === 'chords' && <ChordTypePicker single selected={[typeId]} onChange={([id]) => setTypeId(id)} />}
       {view === 'scales'
         ? KEYS.map((k) => {
             const v = viewCard(DECK.find((c) => c.key === k)!, settings.sharpGb)
@@ -48,7 +39,7 @@ export function Study() {
             const notes = chordNotes(k, type, settings.sharpGb)
             return (
               <section key={k} className="chart">
-                <h3>{displayKey(k, settings.sharpGb)} {chordTitle(type.id, type.name)}: {notes.join(' – ')}</h3>
+                <h3>{displayKey(k, settings.sharpGb)} {type.name}: {notes.join(' – ')}</h3>
                 <ChordMini notes={notes} type={type} />
               </section>
             )

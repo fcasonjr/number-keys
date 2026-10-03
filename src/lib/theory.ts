@@ -43,6 +43,13 @@ export const sharpName = (pc: number) => SHARP_NAMES[((pc % 12) + 12) % 12]
 export const flatName = (pc: number) => FLAT_NAMES[((pc % 12) + 12) % 12]
 export const isBlack = (pc: number) => [1, 3, 6, 8, 10].includes(((pc % 12) + 12) % 12)
 
+/** Raise (+1) or lower (-1) a note by a semitone without changing its letter: alter("Eb", -1) = "Ebb". */
+export function alter(note: string, delta: -1 | 0 | 1): string {
+  if (delta === -1) return note.endsWith('#') ? note.slice(0, -1) : note + 'b'
+  if (delta === 1) return note.endsWith('b') ? note.slice(0, -1) : note + '#'
+  return note
+}
+
 /** Swap Gb-major spelling for F#-major. Only affects the Gb key. */
 export function displayKey(key: string, sharpGb: boolean): string {
   return sharpGb && key === 'Gb' ? 'F#' : key

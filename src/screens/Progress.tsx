@@ -12,18 +12,19 @@ const cellColor = (s: number | null) => {
   return `hsl(${Math.round(s * 125)} 62% ${s === 1 ? 34 : 44}%)`
 }
 
-const CHORD_SHORT: Record<string, string> = { maj: 'Maj', maj6: '6', maj7: 'Maj7', add9: 'Add9' }
-
-interface HeatCol { label: string; id: (k: Key) => string }
-const DEGREE_COLS: HeatCol[] = DEGREES.map((d) => ({ label: String(d), id: (k) => cardId(k, d) }))
-const CHORD_COLS: HeatCol[] = CHORD_TYPES.map((t) => ({ label: CHORD_SHORT[t.id] ?? t.name, id: (k) => chordCardId(t.id, k) }))
+interface HeatRowDef { label: string; cells: { id: string; label: string }[] }
+const SCALE_ROWS = (fmt: (k: Key) => string): HeatRowDef[] =>
+  KEYS.map((k) => ({ label: fmt(k), cells: DEGREES.map((d) => ({ id: cardId(k, d), label: `degree ${d}` })) }))
+// Chords have 16 types, so types are rows and the 12 keys are columns to fit a phone screen.
+const CHORD_ROWS = (fmt: (k: Key) => string): HeatRowDef[] =>
+  CHORD_TYPES.map((t) => ({ label: t.short, cells: KEYS.map((k) => ({ id: chordCardId(t.id, k), label: fmt(k) })) }))
 
 export function Progress() {
   const { store, settings } = useApp()
   const [sel, setSel] = useState<string | null>(null)
   const mastered = DECK.filter((c) => isMastered(store.cards[c.id])).length
   const seen = DECK.filter((c) => store.cards[c.id]).length
-  const chordIds = KEYS.flatMap((k) => CHORD_COLS.map((c) => c.id(k)))
+  const chordIds = KEYS.flatMap((k) => CHORD_TYPES.map((t) => chordCardId(t.id, k)))
   const chordMastered = chordIds.filter((id) => isMastered(store.cards[id])).length
   const chordSeen = chordIds.filter((id) => store.cards[id]).length
   const streak = currentStreak(store.daily)
@@ -39,12 +40,13 @@ export function Progress() {
     return `${displayKey(sel.split('-')[0], settings.sharpGb)} · ${ORDINAL[Number(sel.split('-')[1]) as 1]} tone`
   }
 
-  const heat = (cols: HeatCol[]) => (
-    <div className={`heat ${cols.length < 7 ? 'short' : ''}`} style={{ gridTemplateColumns: `auto repeat(${cols.length}, 1fr)` }}>
+  const fmt = (k: Key) => displayKey(k, settings.sharpGb)
+  const heat = (head: string[], rows: HeatRowDef[]) => (
+    <div className={`heat ${head.length > 7 ? 'tight' : head.length < 7 ? 'short' : ''}`} style={{ gridTemplateColumns: `auto repeat(${head.length}, 1fr)` }}>
       <span />
-      {cols.map((c) => <span key={c.label} className="heat-h">{c.label}</span>)}
-      {KEYS.map((k) => (
-        <HeatRow key={k} k={k} cols={cols} label={displayKey(k, settings.sharpGb)} sel={sel} setSel={setSel} />
+      {head.map((h) => <span key={h} className="heat-h">{h}</span>)}
+      {rows.map((r) => (
+        <HeatRow key={r.label} row={r} sel={sel} setSel={setSel} />
       ))}
     </div>
   )
@@ -59,10 +61,10 @@ export function Progress() {
         <div><b>{seen}/84</b><span>seen</span></div>
       </div>
       <h3>Heat-map</h3>
-      {heat(DEGREE_COLS)}
+      {heat(DEGREES.map(String), SCALE_ROWS(fmt))}
       <h3>Chords</h3>
       <p className="muted">{chordMastered}/{chordIds.length} mastered · {chordSeen}/{chordIds.length} seen</p>
-      {heat(CHORD_COLS)}
+      {heat(KEYS.map(fmt), CHORD_ROWS(fmt))}
       <div className="legend"><span>weak</span><i className="grad" /><span>mastered</span><i className="sw" /><span>unseen</span></div>
       {sel && (
         <div className="detail">
@@ -77,17 +79,16 @@ export function Progress() {
   )
 }
 
-function HeatRow({ k, cols, label, sel, setSel }: { k: Key; cols: HeatCol[]; label: string; sel: string | null; setSel: (s: string) => void }) {
+function HeatRow({ row, sel, setSel }: { row: HeatRowDef; sel: string | null; setSel: (s: string) => void }) {
   const { store } = useApp()
   return (
     <>
-      <span className="heat-h">{label}</span>
-      {cols.map((c) => {
-        const id = c.id(k)
-        const s = store.cards[id]
+      <span className="heat-h">{row.label}</span>
+      {row.cells.map((c) => {
+        const s = store.cards[c.id]
         return (
-          <button key={c.label} className={`cell ${sel === id ? 'sel' : ''}`} style={{ background: cellColor(masteryScore(s)) }}
-            onClick={() => setSel(id)} aria-label={`${label} ${c.label}`}>
+          <button key={c.id} className={`cell ${sel === c.id ? 'sel' : ''}`} style={{ background: cellColor(masteryScore(s)) }}
+            onClick={() => setSel(c.id)} aria-label={`${row.label} ${c.label}`}>
             {isMastered(s) ? '✓' : s && s.missed ? s.missed : ''}
           </button>
         )

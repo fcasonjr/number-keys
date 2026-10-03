@@ -74,8 +74,8 @@ describe('session + storage', () => {
 
 describe('chord cards', () => {
   const ids = KEYS.flatMap((k) => CHORD_TYPES.map((t) => chordCardId(t.id, k)))
-  it('have 48 unique ids that cannot collide with scale cards', () => {
-    expect(new Set(ids).size).toBe(48)
+  it('have 192 unique ids that cannot collide with scale cards', () => {
+    expect(new Set(ids).size).toBe(192)
     const scaleIds = new Set(DECK.map((c) => c.id))
     expect(ids.some((id) => scaleIds.has(id))).toBe(false)
   })

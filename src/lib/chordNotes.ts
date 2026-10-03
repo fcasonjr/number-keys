@@ -1,9 +1,15 @@
-import { ChordType, chordIndex } from '../data/chords'
+import { ChordType, chordIndex, parseTone } from '../data/chords'
 import { ANSWERS, Key } from '../data/deck'
-import { displayKey, generateScale } from './theory'
+import { alter, displayKey, generateScale } from './theory'
 
-/** Spelled note names of `type` built on `key`, honoring the "F# instead of Gb" setting. */
+/**
+ * Spelled note names of `type` built on `key`, honoring the "F# instead of Gb" setting.
+ * Each tone keeps its scale letter, so a flat 3rd of Db is Fb, not E.
+ */
 export function chordNotes(key: Key, type: ChordType, sharpGb: boolean): string[] {
   const scale = displayKey(key, sharpGb) === 'F#' ? generateScale('F#') : [...ANSWERS[key]]
-  return type.formula.map((d) => scale[chordIndex(d)])
+  return type.formula.map((tone) => {
+    const { degree, alt } = parseTone(tone)
+    return alter(scale[chordIndex(degree)], alt)
+  })
 }
