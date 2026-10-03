@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
-import { CHORD_TYPES, ChordType, chordIndex } from '../data/chords'
+import { useMemo, useRef, useState } from 'react'
+import { CHORD_TYPES, ChordType, chordCardId, chordIndex } from '../data/chords'
 import { ANSWERS, KEYS, Key } from '../data/deck'
 import { playChord } from '../lib/audio'
-import { shuffle } from '../lib/session'
+import { smartOrder } from '../lib/leitner'
+import { SMART_SESSION_SIZE, shuffle } from '../lib/session'
 import { displayKey, generateScale, pitchClass } from '../lib/theory'
 import { Card } from '../components/Card'
 import { KeyState, Piano } from '../components/Piano'
@@ -10,6 +11,7 @@ import { useDoubleTap } from '../lib/useDoubleTap'
 import { useApp } from '../state/store'
 
 interface ChordCard {
+  id: string
   key: Key
   keyName: string
   type: ChordType
@@ -24,22 +26,24 @@ function buildCards(keys: Key[], types: ChordType[], sharpGb: boolean): ChordCar
     for (const key of KEYS.filter((k) => keys.includes(k))) {
       const keyName = displayKey(key, sharpGb)
       const scale = keyName === 'F#' ? generateScale('F#') : [...ANSWERS[key]]
-      cards.push({ key, keyName, type, notes: type.formula.map((d) => scale[chordIndex(d)]) })
+      cards.push({ id: chordCardId(type.id, key), key, keyName, type, notes: type.formula.map((d) => scale[chordIndex(d)]) })
     }
   return cards
 }
 
 /** Flash cards for chord tones: "Eb major triad" on the front, "Eb – G – Bb" on the back. */
 export function ChordFlip({ keys, onExit }: { keys: Key[]; onExit: () => void }) {
-  const { settings } = useApp()
+  const { settings, store } = useApp()
   const [types, setTypes] = useState<string[]>(CHORD_TYPES.map((t) => t.id))
   const isDoubleTap = useDoubleTap()
-  const [shuffled, setShuffled] = useState(false)
+  const [order, setOrder] = useState<'original' | 'shuffled' | 'smart'>('original')
   const [queue, setQueue] = useState<ChordCard[] | null>(null)
 
   const start = () => {
     const cards = buildCards(keys, CHORD_TYPES.filter((t) => types.includes(t.id)), settings.sharpGb)
-    setQueue(shuffled ? shuffle(cards) : cards)
+    setQueue(order === 'shuffled' ? shuffle(cards)
+      : order === 'smart' ? smartOrder(cards, store.cards, Date.now()).slice(0, SMART_SESSION_SIZE)
+      : cards)
   }
 
   if (!queue)
@@ -56,11 +60,12 @@ export function ChordFlip({ keys, onExit }: { keys: Key[]; onExit: () => void })
           ))}
         </div>
         <div className="chips">
-          <button className={`chip ${!shuffled ? 'on' : ''}`} onClick={() => setShuffled(false)}>Original order</button>
-          <button className={`chip ${shuffled ? 'on' : ''}`} onClick={() => setShuffled(true)}>Shuffled</button>
+          {([['original', 'Original order'], ['shuffled', 'Shuffled'], ['smart', 'Smart review']] as const).map(([o, label]) => (
+            <button key={o} className={`chip ${order === o ? 'on' : ''}`} onClick={() => setOrder(o)}>{label}</button>
+          ))}
         </div>
         <p className="muted hint">Tip: double-tap a chord type to select only that one.</p>
-        <p className="muted">{types.length * keys.length} cards selected</p>
+        <p className="muted">{order === 'smart' ? Math.min(SMART_SESSION_SIZE, types.length * keys.length) : types.length * keys.length} cards selected</p>
         <div className="row">
           <button className="btn" onClick={onExit}>Back</button>
           <button className="btn primary" disabled={!types.length || !keys.length} onClick={start}>Start</button>
@@ -76,6 +81,7 @@ function FlipRound({ queue, onExit, muted }: { queue: ChordCard[]; onExit: () =>
   const [flipped, setFlipped] = useState(false)
   const [results, setResults] = useState<boolean[]>([])
   const [missed, setMissed] = useState<ChordCard[]>([])
+  const shownAt = useRef(performance.now()) // reset for every card
   const right = results.filter(Boolean).length
 
   const card = queue[i]
@@ -89,19 +95,22 @@ function FlipRound({ queue, onExit, muted }: { queue: ChordCard[]; onExit: () =>
     return { states, marks }
   }, [card])
 
+  const flipMs = useRef(0)
   const flip = () => {
     if (flipped) return
+    flipMs.current = Math.round(performance.now() - shownAt.current)
     setFlipped(true)
     playChord(card.notes.map(pitchClass), muted)
   }
   const mark = (ok: boolean) => {
-    recordChord(ok)
+    recordChord(ok, card.id, flipMs.current)
     setResults((r) => [...r, ok])
     if (!ok) setMissed((m) => [...m, card])
     setFlipped(false)
+    shownAt.current = performance.now()
     setI((x) => x + 1)
   }
-  const again = () => { setI(0); setFlipped(false); setResults([]); setMissed([]) }
+  const again = () => { shownAt.current = performance.now(); setI(0); setFlipped(false); setResults([]); setMissed([]) }
 
   if (!card || !view)
     return (

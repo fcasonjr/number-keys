@@ -1,12 +1,12 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { applyAnswer } from '../lib/leitner'
+import { CHORD_FAST_MS, applyAnswer } from '../lib/leitner'
 import { Settings, Store, dayKey, defaultStore, loadStore, saveStore } from '../lib/storage'
 
 interface Ctx {
   store: Store
   settings: Settings
   record: (cardId: string, correct: boolean, ms: number) => void
-  recordChord: (correct: boolean) => void
+  recordChord: (correct: boolean, cardId?: string, ms?: number) => void
   setSettings: (patch: Partial<Settings>) => void
   setBestSpeed: (sig: string, score: number) => void
   replace: (s: Store) => void
@@ -37,10 +37,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }))
   }, [])
 
-  const recordChord = useCallback((correct: boolean) => {
+  const recordChord = useCallback((correct: boolean, cardId?: string, ms = 0) => {
     const now = Date.now()
     setStore((s) => ({
       ...s,
+      cards: cardId ? { ...s.cards, [cardId]: applyAnswer(s.cards[cardId], correct, ms, now, CHORD_FAST_MS) } : s.cards,
       chords: {
         correct: s.chords.correct + (correct ? 1 : 0),
         missed: s.chords.missed + (correct ? 0 : 1),

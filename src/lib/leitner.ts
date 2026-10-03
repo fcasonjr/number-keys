@@ -1,7 +1,8 @@
-import { Card } from '../data/deck'
 import { CardStats } from './storage'
 
 export const FAST_MS = 3000
+/** Chords have more notes to name, so "fast" is more generous than for single-note cards. */
+export const CHORD_FAST_MS = 5000
 export const MASTER_STREAK = 3
 /** Wait before a card in box N comes back (box 1 = immediately). */
 export const BOX_INTERVALS_MS = [0, 60_000, 10 * 60_000, 24 * 3600_000, 3 * 24 * 3600_000]
@@ -10,14 +11,14 @@ export const newStats = (): CardStats => ({
   box: 1, correct: 0, missed: 0, streak: 0, avgMs: 0, lastSeen: 0, due: 0,
 })
 
-export function applyAnswer(prev: CardStats | undefined, correct: boolean, ms: number, now: number): CardStats {
+export function applyAnswer(prev: CardStats | undefined, correct: boolean, ms: number, now: number, fastMs = FAST_MS): CardStats {
   const s = { ...(prev ?? newStats()) }
   const attempts = s.correct + s.missed
   s.avgMs = (s.avgMs * attempts + ms) / (attempts + 1)
   if (correct) {
     s.correct++
     s.box = Math.min(5, s.box + 1)
-    s.streak = ms < FAST_MS ? s.streak + 1 : 0
+    s.streak = ms < fastMs ? s.streak + 1 : 0
   } else {
     s.missed++
     s.box = 1
@@ -38,8 +39,8 @@ export function masteryScore(s?: CardStats): number | null {
 }
 
 /** Due/unseen cards first, lowest box first, then oldest due. Stable on original order. */
-export function smartOrder(cards: Card[], stats: Record<string, CardStats>, now: number): Card[] {
-  const rank = (c: Card) => {
+export function smartOrder<T extends { id: string }>(cards: T[], stats: Record<string, CardStats>, now: number): T[] {
+  const rank = (c: T) => {
     const s = stats[c.id]
     if (!s) return [0, 0, 0] // unseen: due now, box 0
     return [s.due <= now ? 0 : 1, s.box, s.due]

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
+import { CHORD_TYPES, chordCardId } from '../src/data/chords'
 import { DECK, KEYS } from '../src/data/deck'
 import { distractors, choicesFor } from '../src/lib/distractors'
-import { applyAnswer, isMastered, smartOrder } from '../src/lib/leitner'
+import { CHORD_FAST_MS, FAST_MS, applyAnswer, isMastered, smartOrder } from '../src/lib/leitner'
 import { buildQueue, defaultFilter } from '../src/lib/session'
 import { currentStreak, dayKey } from '../src/lib/storage'
 import { pitchClass, respellings } from '../src/lib/theory'
@@ -68,5 +69,30 @@ describe('session + storage', () => {
     expect(currentStreak({ [d(0)]: 1, [d(1)]: 3, [d(2)]: 1 }, now)).toBe(3)
     expect(currentStreak({ [d(1)]: 1 }, now)).toBe(1)
     expect(currentStreak({ [d(2)]: 1 }, now)).toBe(0)
+  })
+})
+
+describe('chord cards', () => {
+  const ids = KEYS.flatMap((k) => CHORD_TYPES.map((t) => chordCardId(t.id, k)))
+  it('have 48 unique ids that cannot collide with scale cards', () => {
+    expect(new Set(ids).size).toBe(48)
+    const scaleIds = new Set(DECK.map((c) => c.id))
+    expect(ids.some((id) => scaleIds.has(id))).toBe(false)
+  })
+  it('count a 4-second answer as fast for chords but not for scale cards', () => {
+    const now = 1_000_000
+    expect(applyAnswer(undefined, true, 4000, now, CHORD_FAST_MS).streak).toBe(1)
+    expect(applyAnswer(undefined, true, 4000, now).streak).toBe(0)
+    expect(4000).toBeGreaterThan(FAST_MS)
+  })
+  it('smart-order chord cards: unseen and missed come before well-known ones', () => {
+    const now = 5_000_000
+    const cards = ids.slice(0, 3).map((id) => ({ id }))
+    let known = undefined
+    for (let i = 0; i < 4; i++) known = applyAnswer(known, true, 1000, now - 10 * 86400000, CHORD_FAST_MS)
+    const missed = applyAnswer(undefined, false, 9000, now - 1000, CHORD_FAST_MS)
+    const out = smartOrder(cards, { [cards[0].id]: known!, [cards[1].id]: missed }, now)
+    expect(out[out.length - 1].id).toBe(cards[0].id)
+    expect(out[0].id).toBe(cards[2].id)
   })
 })

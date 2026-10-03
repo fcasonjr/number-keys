@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { CHORD_TYPES, ChordType, chordIndex } from '../data/chords'
+import { useMemo, useRef, useState } from 'react'
+import { CHORD_TYPES, ChordType, chordCardId, chordIndex } from '../data/chords'
 import { ANSWERS, Key } from '../data/deck'
 import { playChord } from '../lib/audio'
 import { shuffle } from '../lib/session'
@@ -45,7 +45,7 @@ export function ChordDrill({ keys, onExit }: Props) {
 }
 
 function ChordRound({ keys, types, onExit, sharpGb, muted, record }: {
-  keys: Key[]; types: ChordType[]; onExit: () => void; sharpGb: boolean; muted: boolean; record: (ok: boolean) => void
+  keys: Key[]; types: ChordType[]; onExit: () => void; sharpGb: boolean; muted: boolean; record: (ok: boolean, cardId?: string, ms?: number) => void
 }) {
   const [n, setN] = useState(0)
   const [score, setScore] = useState({ right: 0, wrong: 0 })
@@ -57,6 +57,7 @@ function ChordRound({ keys, types, onExit, sharpGb, muted, record }: {
     return { key, keyName: key === 'Gb' && sharpGb ? 'F#' : key, type, notes }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [n])
+  const shownAt = useRef(performance.now()) // reset for every question
   const [sel, setSel] = useState<number[]>([]) // key indices
   const [checked, setChecked] = useState(false)
 
@@ -70,11 +71,11 @@ function ChordRound({ keys, types, onExit, sharpGb, muted, record }: {
   }
   const check = () => {
     setChecked(true)
-    record(ok)
+    record(ok, chordCardId(q.type.id, q.key), Math.round(performance.now() - shownAt.current))
     setScore((s) => ({ right: s.right + (ok ? 1 : 0), wrong: s.wrong + (ok ? 0 : 1) }))
     playChord(q.notes.map(pitchClass), muted)
   }
-  const next = () => { setSel([]); setChecked(false); setN((x) => x + 1) }
+  const next = () => { shownAt.current = performance.now(); setSel([]); setChecked(false); setN((x) => x + 1) }
 
   const states: Record<number, KeyState> = {}
   sel.forEach((i) => (states[i] = 'sel'))

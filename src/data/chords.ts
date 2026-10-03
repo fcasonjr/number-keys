@@ -12,5 +12,8 @@ export const CHORD_TYPES: ChordType[] = [
   { id: 'add9', name: 'Add 9', formula: [1, 3, 5, 9] },
 ]
 
+/** Key into Store.cards for a chord card. The "chord:" prefix keeps it apart from scale-degree cards. */
+export const chordCardId = (typeId: string, key: string) => `chord:${typeId}-${key}`
+
 /** Scale index (0-6) for a chord degree. */
 export const chordIndex = (d: number) => ((d - 1) % 7)
