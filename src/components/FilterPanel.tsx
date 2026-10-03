@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { DEGREES, Degree, KEYS, Key } from '../data/deck'
 import { DEGREE_PRESETS, Filter, KEY_PRESETS, Order, filterCards } from '../lib/session'
 import { displayKey } from '../lib/theory'
@@ -8,6 +9,15 @@ const toggle = <T,>(arr: T[], x: T) => (arr.includes(x) ? arr.filter((y) => y !=
 export function FilterPanel({ filter, onChange, sharpGb, showOrder = true }: {
   filter: Filter; onChange: (f: Filter) => void; sharpGb: boolean; showOrder?: boolean
 }) {
+  // Tapping a chip twice quickly selects only that chip. Done by timing taps because
+  // double-click events are unreliable on touch screens.
+  const lastTap = useRef<{ id: string; at: number } | null>(null)
+  const isDoubleTap = (id: string) => {
+    const now = Date.now()
+    const dbl = lastTap.current?.id === id && now - lastTap.current.at < 400
+    lastTap.current = dbl ? null : { id, at: now }
+    return dbl
+  }
   const orders: [Order, string][] = [['original', 'Original'], ['shuffled', 'Shuffled'], ['smart', 'Smart review']]
   return (
     <div className="filters">
@@ -17,11 +27,12 @@ export function FilterPanel({ filter, onChange, sharpGb, showOrder = true }: {
           <button key={p.label} className={`chip preset ${same(filter.keys, p.keys) ? 'on' : ''}`}
             onClick={() => onChange({ ...filter, keys: [...p.keys] })}>{p.label}</button>
         ))}
+        <button className={`chip preset ${filter.keys.length === 0 ? 'on' : ''}`} onClick={() => onChange({ ...filter, keys: [] })}>None</button>
       </div>
       <div className="chips">
         {KEYS.map((k: Key) => (
           <button key={k} className={`chip ${filter.keys.includes(k) ? 'on' : ''}`}
-            onClick={() => onChange({ ...filter, keys: toggle(filter.keys, k) })}>{displayKey(k, sharpGb)}</button>
+            onClick={() => onChange({ ...filter, keys: isDoubleTap(k) ? [k] : toggle(filter.keys, k) })}>{displayKey(k, sharpGb)}</button>
         ))}
       </div>
       <h3>Degrees</h3>
@@ -30,11 +41,12 @@ export function FilterPanel({ filter, onChange, sharpGb, showOrder = true }: {
           <button key={p.label} className={`chip preset ${same(filter.degrees, p.degrees) ? 'on' : ''}`}
             onClick={() => onChange({ ...filter, degrees: [...p.degrees] })}>{p.label}</button>
         ))}
+        <button className={`chip preset ${filter.degrees.length === 0 ? 'on' : ''}`} onClick={() => onChange({ ...filter, degrees: [] })}>None</button>
       </div>
       <div className="chips">
         {DEGREES.map((d: Degree) => (
           <button key={d} className={`chip ${filter.degrees.includes(d) ? 'on' : ''}`}
-            onClick={() => onChange({ ...filter, degrees: toggle(filter.degrees, d) })}>{d}</button>
+            onClick={() => onChange({ ...filter, degrees: isDoubleTap(`d${d}`) ? [d] : toggle(filter.degrees, d) })}>{d}</button>
         ))}
       </div>
       {showOrder && (
@@ -47,6 +59,7 @@ export function FilterPanel({ filter, onChange, sharpGb, showOrder = true }: {
           </div>
         </>
       )}
+      <p className="muted hint">Tip: double-tap a key or number to select only that one.</p>
       <p className="muted">{filterCards(filter).length} cards selected</p>
     </div>
   )

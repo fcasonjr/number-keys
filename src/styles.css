@@ -45,6 +45,7 @@ h1 { margin: 8px 0 4px; font-size: 1.7rem; } h2 { margin: 8px 0; } h3 { margin: 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
 .chip { font: inherit; font-size: .95rem; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border);
   background: var(--surface); color: var(--text); min-height: 40px; }
+.chip { touch-action: manipulation; }
 .chip.on { background: var(--primary); color: var(--primary-text); border-color: transparent; }
 span.chip { min-height: 0; padding: 4px 10px; }
 
