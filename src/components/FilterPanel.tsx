@@ -1,7 +1,7 @@
-import { useRef } from 'react'
 import { DEGREES, Degree, KEYS, Key } from '../data/deck'
 import { DEGREE_PRESETS, Filter, KEY_PRESETS, Order, filterCards } from '../lib/session'
 import { displayKey } from '../lib/theory'
+import { useDoubleTap } from '../lib/useDoubleTap'
 
 const same = (a: unknown[], b: unknown[]) => a.length === b.length && a.every((x) => b.includes(x))
 const toggle = <T,>(arr: T[], x: T) => (arr.includes(x) ? arr.filter((y) => y !== x) : [...arr, x])
@@ -9,15 +9,8 @@ const toggle = <T,>(arr: T[], x: T) => (arr.includes(x) ? arr.filter((y) => y !=
 export function FilterPanel({ filter, onChange, sharpGb, showOrder = true }: {
   filter: Filter; onChange: (f: Filter) => void; sharpGb: boolean; showOrder?: boolean
 }) {
-  // Tapping a chip twice quickly selects only that chip. Done by timing taps because
-  // double-click events are unreliable on touch screens.
-  const lastTap = useRef<{ id: string; at: number } | null>(null)
-  const isDoubleTap = (id: string) => {
-    const now = Date.now()
-    const dbl = lastTap.current?.id === id && now - lastTap.current.at < 400
-    lastTap.current = dbl ? null : { id, at: now }
-    return dbl
-  }
+  // Tapping a chip twice quickly selects only that chip.
+  const isDoubleTap = useDoubleTap()
   const orders: [Order, string][] = [['original', 'Original'], ['shuffled', 'Shuffled'], ['smart', 'Smart review']]
   return (
     <div className="filters">

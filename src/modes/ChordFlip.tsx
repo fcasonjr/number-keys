@@ -6,6 +6,7 @@ import { shuffle } from '../lib/session'
 import { displayKey, generateScale, pitchClass } from '../lib/theory'
 import { Card } from '../components/Card'
 import { KeyState, Piano } from '../components/Piano'
+import { useDoubleTap } from '../lib/useDoubleTap'
 import { useApp } from '../state/store'
 
 interface ChordCard {
@@ -32,6 +33,7 @@ function buildCards(keys: Key[], types: ChordType[], sharpGb: boolean): ChordCar
 export function ChordFlip({ keys, onExit }: { keys: Key[]; onExit: () => void }) {
   const { settings } = useApp()
   const [types, setTypes] = useState<string[]>(CHORD_TYPES.map((t) => t.id))
+  const isDoubleTap = useDoubleTap()
   const [shuffled, setShuffled] = useState(false)
   const [queue, setQueue] = useState<ChordCard[] | null>(null)
 
@@ -48,7 +50,7 @@ export function ChordFlip({ keys, onExit }: { keys: Key[]; onExit: () => void })
         <div className="chips">
           {CHORD_TYPES.map((t) => (
             <button key={t.id} className={`chip ${types.includes(t.id) ? 'on' : ''}`}
-              onClick={() => setTypes((x) => (x.includes(t.id) ? x.filter((y) => y !== t.id) : [...x, t.id]))}>
+              onClick={() => setTypes((x) => (isDoubleTap(t.id) ? [t.id] : x.includes(t.id) ? x.filter((y) => y !== t.id) : [...x, t.id]))}>
               {typeTitle(t)} ({t.formula.join('-')})
             </button>
           ))}
@@ -57,6 +59,7 @@ export function ChordFlip({ keys, onExit }: { keys: Key[]; onExit: () => void })
           <button className={`chip ${!shuffled ? 'on' : ''}`} onClick={() => setShuffled(false)}>Original order</button>
           <button className={`chip ${shuffled ? 'on' : ''}`} onClick={() => setShuffled(true)}>Shuffled</button>
         </div>
+        <p className="muted hint">Tip: double-tap a chord type to select only that one.</p>
         <p className="muted">{types.length * keys.length} cards selected</p>
         <div className="row">
           <button className="btn" onClick={onExit}>Back</button>

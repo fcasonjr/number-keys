@@ -6,6 +6,7 @@ import { shuffle } from '../lib/session'
 import { generateScale, pitchClass } from '../lib/theory'
 import { Card } from '../components/Card'
 import { Piano, KeyState } from '../components/Piano'
+import { useDoubleTap } from '../lib/useDoubleTap'
 import { useApp } from '../state/store'
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
 export function ChordDrill({ keys, onExit }: Props) {
   const { settings, recordChord } = useApp()
   const [types, setTypes] = useState<string[]>(CHORD_TYPES.map((t) => t.id))
+  const isDoubleTap = useDoubleTap()
   const [started, setStarted] = useState(false)
 
   if (!started)
@@ -26,11 +28,12 @@ export function ChordDrill({ keys, onExit }: Props) {
         <div className="chips">
           {CHORD_TYPES.map((t) => (
             <button key={t.id} className={`chip ${types.includes(t.id) ? 'on' : ''}`}
-              onClick={() => setTypes((x) => (x.includes(t.id) ? x.filter((y) => y !== t.id) : [...x, t.id]))}>
+              onClick={() => setTypes((x) => (isDoubleTap(t.id) ? [t.id] : x.includes(t.id) ? x.filter((y) => y !== t.id) : [...x, t.id]))}>
               {t.name} ({t.formula.join('-')})
             </button>
           ))}
         </div>
+        <p className="muted hint">Tip: double-tap a chord type to select only that one.</p>
         <div className="row">
           <button className="btn" onClick={onExit}>Back</button>
           <button className="btn primary" disabled={!types.length} onClick={() => setStarted(true)}>Start</button>
