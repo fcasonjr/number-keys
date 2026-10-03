@@ -220,6 +220,7 @@ If a build ever fails with a Node version error, set the environment variable `N
 
 - `number-system-app-prompt.md`, the original build brief, is in `.gitignore` on purpose.
 - History on `main` is public. Avoid rewriting it.
+- The project is MIT licensed (`LICENSE`, copyright Franklin Cason Jr, and `"license": "MIT"` in `package.json`).
 - `CLAUDE.md` at the repo root holds guidance for AI coding sessions; keep it in step with this document when the architecture changes.
 - `docs/images/` holds the screenshots used by the user guide. The two heat-map pictures use made-up sample progress. Retake screenshots when a screen's look changes.
 

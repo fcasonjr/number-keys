@@ -25,3 +25,7 @@ The PWA needs HTTPS (or localhost) to install, so deploy `dist/` to any static h
 
 After the first load it works offline. Progress lives in the browser's localStorage,
 so use Settings → Export JSON to move it between devices.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
