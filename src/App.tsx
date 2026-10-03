@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChordDrill } from './modes/ChordDrill'
+import { ChordFlip } from './modes/ChordFlip'
 import { SpeedRound } from './modes/SpeedRound'
 import { Home } from './screens/Home'
 import { Progress } from './screens/Progress'
@@ -23,6 +24,7 @@ function Shell() {
     return (
       <main className="app">
         {mode === 'speed' ? <SpeedRound filter={filter} onExit={exit} />
+          : mode === 'chordflip' ? <ChordFlip keys={filter.keys} onExit={exit} />
           : mode === 'chords' ? <ChordDrill keys={filter.keys} onExit={exit} />
           : <Session mode={mode} filter={filter} onExit={exit} />}
       </main>

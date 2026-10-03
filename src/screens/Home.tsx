@@ -10,6 +10,7 @@ const MODES: { id: Mode; name: string; desc: string }[] = [
   { id: 'piano', name: 'Tap the Piano', desc: 'Tap the right key on a 2-octave keyboard' },
   { id: 'reverse', name: 'Reverse', desc: '"In Bb, what number is Eb?"' },
   { id: 'speed', name: 'Speed Round', desc: '60 seconds, as many as you can' },
+  { id: 'chordflip', name: 'Chord Flip', desc: '"Eb major triad" → flip → Eb G Bb' },
   { id: 'chords', name: 'Chord Formulas', desc: 'Tap all notes of 1-3-5, 1-3-5-6, …' },
 ]
 
@@ -17,7 +18,7 @@ export function Home({ onStart, filter, setFilter }: { onStart: (m: Mode) => voi
   const { settings } = useApp()
   const [mode, setMode] = useState<Mode>('flip')
   const n = filterCards(filter).length
-  const needsCards = mode !== 'chords'
+  const needsCards = mode !== 'chords' && mode !== 'chordflip'
   const disabled = needsCards ? n === 0 : filter.keys.length === 0
 
   return (
@@ -32,7 +33,7 @@ export function Home({ onStart, filter, setFilter }: { onStart: (m: Mode) => voi
         ))}
       </div>
       <FilterPanel filter={filter} onChange={setFilter} sharpGb={settings.sharpGb}
-        showOrder={mode !== 'speed' && mode !== 'chords'} />
+        showOrder={mode !== 'speed' && mode !== 'chords' && mode !== 'chordflip'} />
       <button className="btn primary wide start" disabled={disabled} onClick={() => onStart(mode)}>Start</button>
       <button className="link" onClick={() => setFilter(defaultFilter())}>Reset filters</button>
     </div>

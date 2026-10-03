@@ -100,3 +100,4 @@ span.chip { min-height: 0; padding: 4px 10px; }
 .setting { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
 .setting small { display: block; color: var(--muted); }
 .setting input[type='checkbox'] { width: 24px; height: 24px; } .setting select { font: inherit; padding: 6px; }
+.chord-notes { font-size: clamp(2rem, 11vw, 3.2rem); }
