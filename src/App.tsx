@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ChordDrill } from './modes/ChordDrill'
 import { ChordFlip } from './modes/ChordFlip'
+import { AutoPlay } from './screens/AutoPlay'
 import { LoopSession } from './screens/LoopSession'
 import { SpeedRound } from './modes/SpeedRound'
 import { Home } from './screens/Home'
@@ -24,7 +25,8 @@ function Shell() {
   if (mode) {
     return (
       <main className="app">
-        {mode === 'speed' ? <SpeedRound filter={filter} onExit={exit} />
+        {mode === 'auto' ? <AutoPlay filter={filter} onExit={exit} />
+          : mode === 'speed' ? <SpeedRound filter={filter} onExit={exit} />
           : mode === 'flip' && filter.order === 'loop' ? <LoopSession filter={filter} onExit={exit} />
           : mode === 'chordflip' ? <ChordFlip keys={filter.keys} onExit={exit} />
           : mode === 'chords' ? <ChordDrill keys={filter.keys} onExit={exit} />

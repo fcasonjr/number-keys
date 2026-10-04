@@ -1,3 +1,5 @@
+import type { AutoSpeed } from './autoplay'
+
 export type Theme = 'system' | 'light' | 'dark'
 
 export interface CardStats {
@@ -14,6 +16,7 @@ export interface Settings {
   sharpGb: boolean
   muted: boolean
   speak: boolean
+  autoSpeed: AutoSpeed
   theme: Theme
 }
 
@@ -36,7 +39,7 @@ export const defaultStore = (): Store => ({
   daily: {},
   total: 0,
   chords: { correct: 0, missed: 0 },
-  settings: { sharpGb: false, muted: false, speak: false, theme: 'system' },
+  settings: { sharpGb: false, muted: false, speak: false, autoSpeed: 'medium', theme: 'system' },
 })
 
 function normalize(raw: unknown): Store | null {

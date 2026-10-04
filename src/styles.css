@@ -107,3 +107,5 @@ span.chip { min-height: 0; padding: 4px 10px; }
 .heat.tight .cell { aspect-ratio: auto; height: 28px; border-radius: 6px; font-size: .7rem; }
 .heat.tight .heat-h { font-size: .72rem; padding-right: 2px; }
 .loopstats { text-align: center; margin: 4px 0 0; }
+.autospace { height: 120px; }
+.autocontrols { justify-content: center; margin-top: 8px; }

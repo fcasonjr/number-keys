@@ -23,15 +23,28 @@ export function chordCardSpeech(keyName: string, type: ChordType, notes: string[
 
 export const canSpeak = () => typeof window !== 'undefined' && 'speechSynthesis' in window
 
-/** Speaks `text`, replacing anything still being said. Silent if the browser has no speech support. */
-export function speak(text: string) {
+/**
+ * Speaks `text`, replacing anything still being said. Silent if the browser has no speech support.
+ * `onEnd` runs when speaking finishes or fails (immediately if speech is unavailable), and also when
+ * the speech is cut off by `stopSpeaking()` or by the next `speak()`.
+ */
+export function speak(text: string, onEnd?: () => void) {
   try {
-    if (!canSpeak()) return
+    if (!canSpeak()) return onEnd?.()
     window.speechSynthesis.cancel()
     const u = new SpeechSynthesisUtterance(text)
     u.lang = 'en-US'
     u.rate = 0.95
+    if (onEnd) u.onend = u.onerror = () => onEnd()
     window.speechSynthesis.speak(u)
+  } catch {
+    onEnd?.()
+  }
+}
+
+export function stopSpeaking() {
+  try {
+    if (canSpeak()) window.speechSynthesis.cancel()
   } catch {
     /* speech is optional */
   }

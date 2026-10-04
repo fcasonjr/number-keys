@@ -10,7 +10,7 @@ import { TapPiano } from '../modes/TapPiano'
 import { QProps } from '../modes/types'
 import { viewCard } from '../lib/cards'
 
-export type Mode = 'flip' | 'choice' | 'piano' | 'reverse' | 'speed' | 'chords' | 'chordflip'
+export type Mode = 'flip' | 'choice' | 'piano' | 'reverse' | 'speed' | 'chords' | 'chordflip' | 'auto'
 
 const COMPONENTS: Record<'flip' | 'choice' | 'piano' | 'reverse', (p: QProps) => React.JSX.Element> = {
   flip: ClassicFlip, choice: MultipleChoice, piano: TapPiano, reverse: Reverse,

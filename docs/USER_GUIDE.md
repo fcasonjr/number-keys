@@ -61,11 +61,11 @@ Tap any key or number to switch it on or off. **Double-tap a key or number to se
 - **Smart review:** the 20 cards that need practice most (see [Progress and smart review](#progress-and-smart-review)).
 - **Loop** (Classic Flip only): repeats your selected cards until you quit. See [Repeating one card](#repeating-one-card-loop).
 
-The chord modes and the Speed Round use your Keys selection but not the Order options. **Reset filters** puts everything back to all keys, all degrees.
+Auto-play offers Original and Shuffled only. The chord modes and the Speed Round use your Keys selection but not the Order options. **Reset filters** puts everything back to all keys, all degrees.
 
 ## Scale practice modes
 
-Five modes drill the same 84 cards in different ways. Start with Classic Flip, then move to the faster modes as the notes become automatic.
+Six modes work with the same 84 cards. Start with Classic Flip, then move to the faster modes as the notes become automatic. Auto-play is different: it is for listening, not testing.
 
 | Mode | What you do | Best for |
 | --- | --- | --- |
@@ -74,6 +74,7 @@ Five modes drill the same 84 cards in different ways. Start with Classic Flip, t
 | Tap the Piano | Tap the note on a two-octave keyboard | Connecting names to the keys |
 | Reverse | See a note, pick its number 1 to 7 | Reading charts and lead sheets |
 | Speed Round | 60 seconds, as many as you can | Building speed |
+| Auto-play | Cards flip on their own while you listen | Passive learning |
 
 ### Classic Flip
 
@@ -108,6 +109,18 @@ Tap the right key on the on-screen keyboard. Either octave counts. A black key h
 The card shows a note in a key, such as "In the key of Bb, what number is Eb?" Tap the number. The answer here is 4.
 
 <img src="images/reverse.png" width="320" alt="Reverse mode">
+
+### Auto-play
+
+Auto-play is for learning without pressing anything. Choose it, set your Keys and Degrees, pick **Original** or **Shuffled** order, and tap **Start**. Each card shows its question, then reveals the answer, then moves to the next card by itself, round and round until you tap **Quit**.
+
+- **Speed.** **Slow**, **Medium** and **Fast** change how long the question and answer stay up (Slow 4 s then 3 s, Medium 3 s then 2 s, Fast 2 s then 1.5 s). The app remembers your choice.
+- **Voice.** With **Voice on**, the answer is spoken ("second tone of F is G"), and the next card waits until the voice has finished. You can switch it on or off on this screen. It is the same switch as **Speak answers** in Settings.
+- **Pause and Resume.** The top-right button holds the cards. Resuming restarts the current step.
+- **Screen.** While it runs, Auto-play asks your phone to keep the screen on. Phones stop web pages when the screen locks or you switch to another app, so keep Number Keys open on screen for it to keep playing.
+- **Not counted.** Auto-play is listening, not testing, so it never changes your Progress, boxes or day streak.
+
+<img src="images/autoplay.png" width="320" alt="Auto-play: the answer is revealed with the scale on the keyboard, with speed and voice controls underneath">
 
 ### Speed Round
 
@@ -238,7 +251,7 @@ The pictures above use sample data to show what the colors look like. Yours star
 | Setting | What it does |
 | --- | --- |
 | Sound | Plays the note (or chord) when you answer or flip a card. Turn it off to practice silently. |
-| Speak answers | Says the answer out loud when you flip a card in Classic Flip, Loop or Chord Flip, for example "second tone of F is G". Off until you turn it on, and separate from Sound. |
+| Speak answers | Says the answer out loud when you flip a card in Classic Flip, Loop or Chord Flip, and in Auto-play, for example "second tone of F is G". Off until you turn it on, and separate from Sound. |
 | F# instead of Gb | Shows Gb major as F# major everywhere, including the chords built on it. The keys on the piano are the same. |
 | Theme | System follows your phone's light or dark setting. Light and Dark force one. |
 | Export JSON | Saves your progress as a file named number-keys-progress-&lt;date&gt;.json. |

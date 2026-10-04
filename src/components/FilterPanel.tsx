@@ -6,13 +6,14 @@ import { useDoubleTap } from '../lib/useDoubleTap'
 const same = (a: unknown[], b: unknown[]) => a.length === b.length && a.every((x) => b.includes(x))
 const toggle = <T,>(arr: T[], x: T) => (arr.includes(x) ? arr.filter((y) => y !== x) : [...arr, x])
 
-export function FilterPanel({ filter, onChange, sharpGb, showOrder = true, showLoop = false }: {
-  filter: Filter; onChange: (f: Filter) => void; sharpGb: boolean; showOrder?: boolean; showLoop?: boolean
+const ALL_ORDERS: [Order, string][] = [['original', 'Original'], ['shuffled', 'Shuffled'], ['smart', 'Smart review'], ['loop', 'Loop']]
+
+export function FilterPanel({ filter, onChange, sharpGb, showOrder = true, orders: offered = ['original', 'shuffled', 'smart'] }: {
+  filter: Filter; onChange: (f: Filter) => void; sharpGb: boolean; showOrder?: boolean; orders?: Order[]
 }) {
   // Tapping a chip twice quickly selects only that chip.
   const isDoubleTap = useDoubleTap()
-  const orders: [Order, string][] = [['original', 'Original'], ['shuffled', 'Shuffled'], ['smart', 'Smart review']]
-  if (showLoop) orders.push(['loop', 'Loop'])
+  const orders = ALL_ORDERS.filter(([o]) => offered.includes(o))
   return (
     <div className="filters">
       <h3>Keys</h3>
