@@ -59,6 +59,7 @@ Tap any key or number to switch it on or off. **Double-tap a key or number to se
 - **Original:** like the paper cards. All 12 keys for the 1st tone, then all 12 for the 2nd, and so on.
 - **Shuffled:** random order.
 - **Smart review:** the 20 cards that need practice most (see [Progress and smart review](#progress-and-smart-review)).
+- **Loop** (Classic Flip only): repeats your selected cards until you quit. See [Repeating one card](#repeating-one-card-loop).
 
 The chord modes and the Speed Round use your Keys selection but not the Order options. **Reset filters** puts everything back to all keys, all degrees.
 
@@ -76,9 +77,19 @@ Five modes drill the same 84 cards in different ways. Start with Classic Flip, t
 
 ### Classic Flip
 
-The front shows the tone and the key, such as "1st Tone / C". Say the answer, tap the card, and check yourself. The back shows the note and a keyboard with the whole scale marked, with the tone you were asked about highlighted. Then tap **Got it** or **Missed it**.
+The front shows the tone and the key, such as "1st Tone / C". Say the answer, tap the card, and check yourself. The back shows the note and a keyboard with the whole scale marked, with the tone you were asked about highlighted. Then tap **Got it** or **Missed it**. If you turn on **Speak answers** in Settings, the app also says the answer out loud, such as "second tone of F is G".
 
 <img src="images/flip-front.png" width="320" alt="Classic Flip, front of the card"> <img src="images/flip-back.png" width="320" alt="Classic Flip, back of the card with the scale on the keyboard">
+
+#### Repeating one card (Loop)
+
+To drill a single card until it is automatic, choose **Classic Flip**, set the Order to **Loop**, and double-tap one key and one number (for example Eb and 5). Tap **Start** and the same card comes back after every flip. The top of the screen counts your reps and shows your last, average and fastest flip times, so you can watch the time come down.
+
+Loop works with more than one card too: it cycles through everything you selected until you tap **Quit**. Choosing any other mode turns Loop off.
+
+Loop reps are practice only. They do not change your Progress, boxes or day streak, because the same card back to back is not a real test of memory.
+
+<img src="images/loop.png" width="320" alt="Loop: the 5th tone of Eb on repeat, with the rep count and flip times">
 
 ### Multiple Choice
 
@@ -227,6 +238,7 @@ The pictures above use sample data to show what the colors look like. Yours star
 | Setting | What it does |
 | --- | --- |
 | Sound | Plays the note (or chord) when you answer or flip a card. Turn it off to practice silently. |
+| Speak answers | Says the answer out loud when you flip a card in Classic Flip, Loop or Chord Flip, for example "second tone of F is G". Off until you turn it on, and separate from Sound. |
 | F# instead of Gb | Shows Gb major as F# major everywhere, including the chords built on it. The keys on the piano are the same. |
 | Theme | System follows your phone's light or dark setting. Light and Dark force one. |
 | Export JSON | Saves your progress as a file named number-keys-progress-&lt;date&gt;.json. |
@@ -268,7 +280,7 @@ Short, daily sessions work better than one long one. Ten minutes a day is plenty
 
 **My progress is gone.** Progress is stored per browser and per device. Check that you are in the same place you practiced before (the installed app or the browser tab), and that site data has not been cleared. If you exported a backup, use **Import JSON** in Settings.
 
-**I hear no sound.** Check that **Sound** is on in Settings and your volume is up. On an iPhone, the silent switch can mute web audio. Sound starts after your first tap on a card.
+**I hear no sound.** Check that **Sound** is on in Settings and your volume is up. The spoken answers have their own switch, **Speak answers**, and use your device's built-in voice; the setting is greyed out if the browser has no speech support. On an iPhone, the silent switch can mute web audio. Sound starts after your first tap on a card.
 
 **I cannot install it.** Open the site in Safari on iPhone or Chrome on Android. Links opened inside another app's built-in browser usually cannot install it.
 

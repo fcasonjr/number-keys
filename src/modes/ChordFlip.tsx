@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { CHORD_TYPES, ChordType, DEFAULT_CHORD_TYPES, chordCardId } from '../data/chords'
 import { KEYS, Key } from '../data/deck'
 import { playChord } from '../lib/audio'
+import { chordCardSpeech, speak } from '../lib/speech'
 import { smartOrder } from '../lib/leitner'
 import { SMART_SESSION_SIZE, shuffle } from '../lib/session'
 import { chordNotes } from '../lib/chordNotes'
@@ -61,10 +62,10 @@ export function ChordFlip({ keys, onExit }: { keys: Key[]; onExit: () => void })
         </div>
       </div>
     )
-  return <FlipRound queue={queue} onExit={onExit} muted={settings.muted} />
+  return <FlipRound queue={queue} onExit={onExit} muted={settings.muted} speakAnswers={settings.speak} />
 }
 
-function FlipRound({ queue, onExit, muted }: { queue: ChordCard[]; onExit: () => void; muted: boolean }) {
+function FlipRound({ queue, onExit, muted, speakAnswers }: { queue: ChordCard[]; onExit: () => void; muted: boolean; speakAnswers: boolean }) {
   const { recordChord } = useApp()
   const [i, setI] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -80,6 +81,7 @@ function FlipRound({ queue, onExit, muted }: { queue: ChordCard[]; onExit: () =>
     flipMs.current = Math.round(performance.now() - shownAt.current)
     setFlipped(true)
     playChord(card.notes.map(pitchClass), muted)
+    if (speakAnswers) speak(chordCardSpeech(card.keyName, card.type, card.notes))
   }
   const mark = (ok: boolean) => {
     recordChord(ok, card.id, flipMs.current)

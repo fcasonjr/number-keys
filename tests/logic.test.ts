@@ -63,6 +63,12 @@ describe('session + storage', () => {
     expect(buildQueue(defaultFilter(), {})).toHaveLength(84)
     expect(KEYS).toHaveLength(12)
   })
+  it('loop order keeps the selected cards in original order (the loop screen does the repeating)', () => {
+    const f = { ...defaultFilter(), keys: ['Eb' as const], degrees: [5 as const], order: 'loop' as const }
+    expect(buildQueue(f, {}).map((c) => c.id)).toEqual(['Eb-5'])
+    const g = { ...defaultFilter(), keys: ['C' as const, 'G' as const], degrees: [2 as const, 5 as const], order: 'loop' as const }
+    expect(buildQueue(g, {}).map((c) => c.id)).toEqual(['C-2', 'G-2', 'C-5', 'G-5'])
+  })
   it('computes day streaks', () => {
     const now = new Date(2026, 5, 10, 12).getTime()
     const d = (n: number) => dayKey(now - n * 86400000)

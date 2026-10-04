@@ -18,11 +18,11 @@ Number Keys is a flash card web app that teaches piano players to name scale ton
 | Scale deck | 84 cards: 7 degrees in each of 12 keys, in circle-of-fourths order |
 | Chord deck | 192 cards: 16 chord types (major, minor, dominant, sus, dim/aug) in each of 12 keys |
 | Practice modes | Classic Flip, Multiple Choice, Tap the Piano, Reverse, Speed Round, Chord Flip, Chord Formulas |
-| Filters | Keys, degrees, chord types; presets; double-tap to select one; Original, Shuffled and Smart review order |
+| Filters | Keys, degrees, chord types; presets; double-tap to select one; Original, Shuffled and Smart review order, plus Loop for Classic Flip |
 | Spaced repetition | Leitner boxes per card, with a mastery rule; shared by scale and chord cards |
 | Study tab | Labeled keyboards for every scale and every chord type |
 | Progress tab | Two heat-maps (scales, chords), day streak, mastered and seen counts |
-| Data | Settings for sound, theme and F# instead of Gb; JSON export, import and reset |
+| Data | Settings for sound, spoken answers, theme and F# instead of Gb; JSON export, import and reset |
 
 The original brief (a prompt file, kept out of the repo) asked for a trainer based on a printed 84-card set, with the answer table treated as the source of truth. Chord Flip, the other chord types and the chord study views were added afterwards.
 
@@ -64,7 +64,7 @@ flowchart TD
     S["<b>Screens</b><br/>App.tsx: four tabs, or a full-screen session with no tab bar<br/>Practice (Home) · Session · Study · Progress · Settings"]
     M["<b>Practice modes</b> (src/modes)<br/>Classic Flip · Multiple Choice · Tap the Piano · Reverse<br/>Speed Round · Chord Flip · Chord Formulas"]
     T["<b>State and storage</b><br/>store.tsx (useApp) · storage.ts"]
-    L["<b>Logic</b> (src/lib)<br/>session · leitner · theory · chordNotes · distractors · audio"]
+    L["<b>Logic</b> (src/lib)<br/>session · leitner · theory · chordNotes · distractors · audio · speech"]
     D["<b>Data</b> (src/data)<br/>deck.ts: 84 scale cards · chords.ts: 16 chord types"]
     LS[("localStorage<br/>number-keys:v1")]
     S --> M --> T --> L --> D
@@ -84,7 +84,9 @@ flowchart TD
 - **App shell** (`src/App.tsx`). Shows one of four tabs, or a full-screen session when a mode is running. The session has no tab bar, which is how the Study tab stays out of reach during a quiz.
 - **Session** (`src/screens/Session.tsx`). Runs a single pass over a queue built by `buildQueue()`, for Classic Flip, Multiple Choice, Tap the Piano and Reverse. Speed Round, Chord Flip and Chord Formulas run their own loops.
 - **Filters and order** (`src/lib/session.ts`, `FilterPanel`). A `Filter` is the selected keys, degrees and order. Presets, the None button and the double-tap rule (`useDoubleTap`) all edit it.
+- **Loop** (`src/screens/LoopSession.tsx`). The `loop` order is offered for Classic Flip only. `App.tsx` routes it to `LoopSession`, which cycles the filtered cards endlessly and shows the rep count and last, average and fastest flip times. It deliberately records nothing: back-to-back repeats are not spaced recall, and recording them would inflate boxes and mastery. Choosing another mode on the Practice screen resets the order from `loop` to `original`.
 - **Shared chord pieces.** `chordNotes()` spells a chord, `ChordMini` draws it on a keyboard, and `ChordTypePicker` chooses types. Chord Flip, Chord Formulas and the Study tab all use them.
+- **Spoken answers** (`src/lib/speech.ts`). The `speak` setting (off by default, separate from `muted`) makes Classic Flip, Loop and Chord Flip say the answer when a card is flipped, using the browser's built-in `speechSynthesis`. Speech engines misread note and chord names, so `noteWords()` writes notes out (`Bb` becomes "bee flat", `Bbb` "bee double flat") and each chord type carries a `spoken` name. The quiz modes are deliberately silent.
 - **Display only.** `viewCard()` turns a stored card into what is shown, applying the F# for Gb setting.
 
 ## Music theory rules
@@ -112,7 +114,7 @@ interface Store {
   daily: Record<string, number>       // YYYY-MM-DD -> cards practiced (drives the streak)
   total: number                       // scale cards practiced
   chords: { correct: number; missed: number }
-  settings: { sharpGb: boolean; muted: boolean; theme: 'system' | 'light' | 'dark' }
+  settings: { sharpGb: boolean; muted: boolean; speak: boolean; theme: 'system' | 'light' | 'dark' }
 }
 
 interface CardStats {
@@ -170,15 +172,18 @@ In the flip modes the time is how long it took to flip the card, because the use
 
 Because mastery requires speed, a slow but correct answer raises the box without building toward mastery.
 
+Loop reps (see Architecture) are not recorded at all, so they never change boxes, streaks, the daily count or the heat-map.
+
 ## Testing
 
-There are 33 tests in three files, and they run in about a tenth of a second. They cover the logic and the music rules. The UI has no automated tests; it has been checked by hand in a browser at phone width.
+There are 38 tests in four files, and they run in about a tenth of a second. They cover the logic and the music rules. The UI has no automated tests; it has been checked by hand in a browser at phone width.
 
 | File | Tests | What it checks |
 | --- | --- | --- |
 | `tests/scales.test.ts` | 18 | The 84-card deck matches generated scales for each of the 12 keys, each scale uses every letter once, known tricky spellings, original card order, and Gb = F# pitches |
 | `tests/chords.test.ts` | 4 | Every chord in every key has the right pitches and letters (with and without F# for Gb), 8 hand-checked chords, and chord type ids are unique with no `-` |
-| `tests/logic.test.ts` | 11 | Distractor rules, Leitner moves, mastery, smart ordering, filters, day streaks, and the 192 chord card ids |
+| `tests/speech.test.ts` | 4 | Note names are spoken as plain words for every note any card can show, the sentences are built correctly, and every chord type has a spoken name |
+| `tests/logic.test.ts` | 12 | Distractor rules, Leitner moves, mastery, smart ordering, filters, loop order, day streaks, and the 192 chord card ids |
 
 ### Why the spelling tests matter
 
@@ -230,7 +235,7 @@ The three most likely changes, and what each one touches.
 
 ### Add a chord type
 
-1. Add an entry to `CHORD_TYPES` in `src/data/chords.ts`: an `id` with no `-`, a `name`, a `short` label for the heat-map, a `family`, and a `formula` of tones as strings (`'b3'`, `'#5'`, `'9'`).
+1. Add an entry to `CHORD_TYPES` in `src/data/chords.ts`: an `id` with no `-`, a `name`, a `short` label for the heat-map, a `spoken` name in plain lowercase words, a `family`, and a `formula` of tones as strings (`'b3'`, `'#5'`, `'9'`).
 2. Run `npm test`. The spelling test loops over every type, so the new chord is checked in all 12 keys automatically.
 3. Update the expected card count in `tests/logic.test.ts` (it is 192 for 16 types), and the counts in `CLAUDE.md`, this file and the user guide.
 

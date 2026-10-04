@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ORDINAL } from '../data/deck'
 import { viewCard } from '../lib/cards'
 import { playPc } from '../lib/audio'
+import { scaleCardSpeech, speak } from '../lib/speech'
 import { pitchClass } from '../lib/theory'
 import { useElapsed } from '../lib/useElapsed'
 import { Card } from '../components/Card'
@@ -19,6 +20,7 @@ export function ClassicFlip({ card, settings, onAnswer, onNext }: QProps) {
     setMs(elapsed())
     setFlipped(true)
     playPc(pitchClass(v.answer), 4, settings.muted)
+    if (settings.speak) speak(scaleCardSpeech(card.degree, v.keyName, v.answer))
   }
   const mark = (ok: boolean) => {
     onAnswer(ok, ms)

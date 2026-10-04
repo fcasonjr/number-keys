@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { canSpeak } from '../lib/speech'
 import { exportJson, parseImport } from '../lib/storage'
 import { useApp } from '../state/store'
 
@@ -27,6 +28,8 @@ export function Settings() {
       <h1>Settings</h1>
       <label className="setting"><span>Sound</span>
         <input type="checkbox" checked={!settings.muted} onChange={(e) => setSettings({ muted: !e.target.checked })} /></label>
+      <label className="setting"><span>Speak answers<small>{canSpeak() ? 'Says the answer out loud when you flip a card' : 'Not supported in this browser'}</small></span>
+        <input type="checkbox" checked={settings.speak} disabled={!canSpeak()} onChange={(e) => setSettings({ speak: e.target.checked })} /></label>
       <label className="setting"><span>F# instead of Gb<small>Shows Gb major as F# major</small></span>
         <input type="checkbox" checked={settings.sharpGb} onChange={(e) => setSettings({ sharpGb: e.target.checked })} /></label>
       <label className="setting"><span>Theme</span>

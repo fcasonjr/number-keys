@@ -6,12 +6,13 @@ import { useDoubleTap } from '../lib/useDoubleTap'
 const same = (a: unknown[], b: unknown[]) => a.length === b.length && a.every((x) => b.includes(x))
 const toggle = <T,>(arr: T[], x: T) => (arr.includes(x) ? arr.filter((y) => y !== x) : [...arr, x])
 
-export function FilterPanel({ filter, onChange, sharpGb, showOrder = true }: {
-  filter: Filter; onChange: (f: Filter) => void; sharpGb: boolean; showOrder?: boolean
+export function FilterPanel({ filter, onChange, sharpGb, showOrder = true, showLoop = false }: {
+  filter: Filter; onChange: (f: Filter) => void; sharpGb: boolean; showOrder?: boolean; showLoop?: boolean
 }) {
   // Tapping a chip twice quickly selects only that chip.
   const isDoubleTap = useDoubleTap()
   const orders: [Order, string][] = [['original', 'Original'], ['shuffled', 'Shuffled'], ['smart', 'Smart review']]
+  if (showLoop) orders.push(['loop', 'Loop'])
   return (
     <div className="filters">
       <h3>Keys</h3>
@@ -50,10 +51,13 @@ export function FilterPanel({ filter, onChange, sharpGb, showOrder = true }: {
               <button key={o} className={`chip ${filter.order === o ? 'on' : ''}`} onClick={() => onChange({ ...filter, order: o })}>{label}</button>
             ))}
           </div>
+          {filter.order === 'loop' && (
+            <p className="muted hint">Loop repeats your selected cards until you quit. Double-tap a key and a number to repeat a single card.</p>
+          )}
         </>
       )}
       <p className="muted hint">Tip: double-tap a key or number to select only that one.</p>
-      <p className="muted">{filterCards(filter).length} cards selected</p>
+      <p className="muted">{filterCards(filter).length === 1 ? '1 card selected' : `${filterCards(filter).length} cards selected`}</p>
     </div>
   )
 }

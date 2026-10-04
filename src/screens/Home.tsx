@@ -27,13 +27,13 @@ export function Home({ onStart, filter, setFilter }: { onStart: (m: Mode) => voi
       <p className="muted">Name any scale degree in any major key, instantly.</p>
       <div className="modes">
         {MODES.map((m) => (
-          <button key={m.id} className={`mode ${mode === m.id ? 'on' : ''}`} onClick={() => setMode(m.id)}>
+          <button key={m.id} className={`mode ${mode === m.id ? 'on' : ''}`} onClick={() => { setMode(m.id); if (m.id !== 'flip' && filter.order === 'loop') setFilter({ ...filter, order: 'original' }) }}>
             <b>{m.name}</b><span>{m.desc}</span>
           </button>
         ))}
       </div>
       <FilterPanel filter={filter} onChange={setFilter} sharpGb={settings.sharpGb}
-        showOrder={mode !== 'speed' && mode !== 'chords' && mode !== 'chordflip'} />
+        showOrder={mode !== 'speed' && mode !== 'chords' && mode !== 'chordflip'} showLoop={mode === 'flip'} />
       <button className="btn primary wide start" disabled={disabled} onClick={() => onStart(mode)}>Start</button>
       <button className="link" onClick={() => setFilter(defaultFilter())}>Reset filters</button>
     </div>

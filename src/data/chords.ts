@@ -6,6 +6,8 @@ export interface ChordType {
   name: string
   /** Short label for the progress grid. */
   short: string
+  /** How to say the name out loud (speech engines misread "m7b5" and "7sus4"). */
+  spoken: string
   family: ChordFamily
   /** Tones as written in a chord formula: a scale degree with an optional b/# (9 = 2nd an octave up). */
   formula: string[]
@@ -20,22 +22,22 @@ export const FAMILIES: { id: ChordFamily; label: string }[] = [
 ]
 
 export const CHORD_TYPES: ChordType[] = [
-  { id: 'maj', name: 'Major triad', short: 'Maj', family: 'major', formula: ['1', '3', '5'] },
-  { id: 'maj6', name: 'Major 6', short: '6', family: 'major', formula: ['1', '3', '5', '6'] },
-  { id: 'maj7', name: 'Major 7', short: 'Maj7', family: 'major', formula: ['1', '3', '5', '7'] },
-  { id: 'add9', name: 'Add 9', short: 'Add9', family: 'major', formula: ['1', '3', '5', '9'] },
-  { id: 'min', name: 'Minor triad', short: 'm', family: 'minor', formula: ['1', 'b3', '5'] },
-  { id: 'min6', name: 'Minor 6', short: 'm6', family: 'minor', formula: ['1', 'b3', '5', '6'] },
-  { id: 'min7', name: 'Minor 7', short: 'm7', family: 'minor', formula: ['1', 'b3', '5', 'b7'] },
-  { id: 'min9', name: 'Minor 9', short: 'm9', family: 'minor', formula: ['1', 'b3', '5', 'b7', '9'] },
-  { id: 'dom7', name: 'Dominant 7', short: '7', family: 'dominant', formula: ['1', '3', '5', 'b7'] },
-  { id: 'dom9', name: 'Dominant 9', short: '9', family: 'dominant', formula: ['1', '3', '5', 'b7', '9'] },
-  { id: 'sus4', name: 'Sus4', short: 'sus4', family: 'sus', formula: ['1', '4', '5'] },
-  { id: 'sus2', name: 'Sus2', short: 'sus2', family: 'sus', formula: ['1', '2', '5'] },
-  { id: 'sus47', name: '7sus4', short: '7sus4', family: 'sus', formula: ['1', '4', '5', 'b7'] },
-  { id: 'dim', name: 'Diminished', short: 'dim', family: 'dim', formula: ['1', 'b3', 'b5'] },
-  { id: 'hdim', name: 'Half-dim m7b5', short: 'm7b5', family: 'dim', formula: ['1', 'b3', 'b5', 'b7'] },
-  { id: 'aug', name: 'Augmented', short: 'aug', family: 'dim', formula: ['1', '3', '#5'] },
+  { id: 'maj', name: 'Major triad', short: 'Maj', spoken: 'major triad', family: 'major', formula: ['1', '3', '5'] },
+  { id: 'maj6', name: 'Major 6', short: '6', spoken: 'major six', family: 'major', formula: ['1', '3', '5', '6'] },
+  { id: 'maj7', name: 'Major 7', short: 'Maj7', spoken: 'major seven', family: 'major', formula: ['1', '3', '5', '7'] },
+  { id: 'add9', name: 'Add 9', short: 'Add9', spoken: 'add nine', family: 'major', formula: ['1', '3', '5', '9'] },
+  { id: 'min', name: 'Minor triad', short: 'm', spoken: 'minor triad', family: 'minor', formula: ['1', 'b3', '5'] },
+  { id: 'min6', name: 'Minor 6', short: 'm6', spoken: 'minor six', family: 'minor', formula: ['1', 'b3', '5', '6'] },
+  { id: 'min7', name: 'Minor 7', short: 'm7', spoken: 'minor seven', family: 'minor', formula: ['1', 'b3', '5', 'b7'] },
+  { id: 'min9', name: 'Minor 9', short: 'm9', spoken: 'minor nine', family: 'minor', formula: ['1', 'b3', '5', 'b7', '9'] },
+  { id: 'dom7', name: 'Dominant 7', short: '7', spoken: 'dominant seven', family: 'dominant', formula: ['1', '3', '5', 'b7'] },
+  { id: 'dom9', name: 'Dominant 9', short: '9', spoken: 'dominant nine', family: 'dominant', formula: ['1', '3', '5', 'b7', '9'] },
+  { id: 'sus4', name: 'Sus4', short: 'sus4', spoken: 'suspended four', family: 'sus', formula: ['1', '4', '5'] },
+  { id: 'sus2', name: 'Sus2', short: 'sus2', spoken: 'suspended two', family: 'sus', formula: ['1', '2', '5'] },
+  { id: 'sus47', name: '7sus4', short: '7sus4', spoken: 'seven suspended four', family: 'sus', formula: ['1', '4', '5', 'b7'] },
+  { id: 'dim', name: 'Diminished', short: 'dim', spoken: 'diminished', family: 'dim', formula: ['1', 'b3', 'b5'] },
+  { id: 'hdim', name: 'Half-dim m7b5', short: 'm7b5', spoken: 'half diminished', family: 'dim', formula: ['1', 'b3', 'b5', 'b7'] },
+  { id: 'aug', name: 'Augmented', short: 'aug', spoken: 'augmented', family: 'dim', formula: ['1', '3', '#5'] },
 ]
 
 /** The four chords the app started with (the Major family); they stay the default selection. */

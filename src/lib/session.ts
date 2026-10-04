@@ -2,7 +2,8 @@ import { Card, DECK, DEGREES, Degree, FLAT_KEYS, KEYS, Key, SHARP_KEYS } from '.
 import { smartOrder } from './leitner'
 import { CardStats } from './storage'
 
-export type Order = 'original' | 'shuffled' | 'smart'
+/** 'loop' is Classic Flip only: the selected cards repeat until you quit (Session does the repeating). */
+export type Order = 'original' | 'shuffled' | 'smart' | 'loop'
 export interface Filter {
   keys: Key[]
   degrees: Degree[]
